@@ -1,81 +1,31 @@
-from fastapi import FastAPI
-import asyncio
-import multiprocessing
-from apscheduler.schedulers.background import BackgroundScheduler
-from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from src.utils.data_model import ServicenowData, DatabaseData
-# Changing the order of following two imports leads to an error (dependency conflict) #check
+from model.main import ModelProcess
 
-from src.model.main import ModelProcess
-from src.database.main import Database
-from src.database.roberta_db import RobertaDB
-from src.api.main import router
-from src.preprocess.main import DataCleaner
-from src.open_ai.main import APICall
+appapi = FastAPI()
 
-@asynccontextmanager
-async def lifespan(lifespan):
-    print('app started...')
-    schedular = BackgroundScheduler()
+# CORS configuration
+appapi.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"], 
+)
 
-    # ---------------------- For testing ---------------------------------
-    from datetime import datetime, timedelta
-    time = datetime.now()+timedelta(seconds=15)
-    hour = time.hour
-    minute = time.minute
-    second = time.second
-    # --------------------------------------------------------------------
+model_process = ModelProcess()
+model_process.inference_process()
 
-    schedular.add_job(func=inference_process, trigger="cron", hour=hour, minute=minute, second=second)
-    schedular.add_job(func=finetune_process, trigger="cron", hour=hour, minute=minute+3, second=second)
-    schedular.start()
-    yield
-    print("app stopped...")
-    schedular.shutdown(wait=False)
+@appapi.post("/send_message/{message_id}")
+async def send_message(message_id: str, request: Request):
+    data = await request.json()
+    new_message = data.get("message")
+    if not new_message:
+        raise HTTPException(status_code=400, detail="Message not provided in request")
 
-def inference_process():
-    process = multiprocessing.Process(target=inference)
-    process.start()
+    sentiment = model_process.inference(new_message)
+    return {"status": "Message sent successfully", "prediction": [sentiment]}
 
-def finetune_process():
-    process = multiprocessing.Process(target=finetune)
-    process.start()
-
-def inference():
-    '''Run periodically with following tasks:
-
-    * Fetch comment from the service-now
-    * Clean the data 
-    * predict the sentiment by local model
-    * Predict the sentiment by GPT
-    * store the local model results in the database
-    * store the GPT sentiment in the database
-    '''
-    # ----------------------------- the following part should be uncommented in actual setting ------------------------
-    api = API()
-    sn_data = ServicenowData()
-    api.get_comments(sn_data)
-
-    data_cleaner = DataCleaner()
-    data_cleaner.clean(sn_data)
-
-    model_process= ModelProcess()
-    api_call = APICall()
-    model_process.inference_process(sn_data)
-    api_call.set_gpt_sentiments(sn_data)
-
-    database = RobertaDB()
-    database.insert_cases(sn_data)  # Insert Cases to the database.
-    database.insert_gpt_sentiment(sn_data)  # Insert GPT sentiments to the database.
-
-def finetune():
-    database = RobertaDB()
-    gpt_entries = database.get_gpt_entries()
-    model_process = ModelProcess()
-    model_process.finetune_process(gpt_entries)
-
-app=FastAPI(lifespan=lifespan)
-app.include_router(router)
-if __name__ =="__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+if __name__ == "__main__":
+    uvicorn.run(appapi, host="127.0.0.1", port=8000)

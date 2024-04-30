@@ -3,13 +3,13 @@ import numpy as np
 from tqdm import tqdm
 from transformers import RobertaTokenizer
 from torch.utils.data import DataLoader
-from src.model.models.model import Model
-from src.model.models.finetune.roberta_finetune import RobertaFinetune
-from src.model.models.validate.roberta_validate import RobertaValidate
-from src.model.models.roberta import RobertaClass
-from src.model.models.inference.roberta_inference import RobertaInference
-from src.model.preprocess.roberta_dataloader import RobertaInferenceSentimentData, RobertaTrainSentimentData
-from src.utils.data_model import ServicenowData
+from model.models.model import Model
+from model.models.finetune.roberta_finetune import RobertaFinetune
+from model.models.validate.roberta_validate import RobertaValidate
+from model.models.roberta import RobertaClass
+from model.models.inference.roberta_inference import RobertaInference
+from model.preprocess.roberta_dataloader import RobertaInferenceSentimentData, RobertaTrainSentimentData
+from utils.data_model import ServicenowData
 
 """Concreate factory for Roberta models"""
 class RobertaModel(Model):

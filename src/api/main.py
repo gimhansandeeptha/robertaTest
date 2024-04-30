@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from datetime import date, timedelta
-from src.database.main import Database
+from database.main import Database
 
 router = APIRouter()
 
