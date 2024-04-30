@@ -1,0 +1,12 @@
+# Ignore env 
+/env/
+.env
+.venv
+
+# Ignore __pycache__
+**/__pycache__/
+
+# Ignore Python files starting with "test"
+test*.py
+
+/src/checkpoint

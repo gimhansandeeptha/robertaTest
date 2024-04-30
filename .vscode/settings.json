@@ -1,0 +1,9 @@
+{
+    "editor.fontSize": 14,
+    "editor.tabSize": 4,
+    "editor.wordWrap": "off",
+    "files.exclude": {
+        "**/__pycache__": true,
+        "env": true
+    },
+}
