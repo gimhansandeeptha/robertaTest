@@ -10,3 +10,5 @@
 test*.py
 
 /src/checkpoint
+
+notes.txt

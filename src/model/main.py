@@ -1,12 +1,12 @@
 import os
 from datetime import datetime
 import pandas as pd
-from model.models.model import Model
-from model.models.roberta_model import RobertaModel
-from utils.metadata import Metadata
-from utils.data_model import ServicenowData, DatabaseData
-from model.preprocess.roberta_dataloader import RobertaTrainSentimentData
-from model.preprocess.roberta_sentiment_converter import RobertaSentimentConverter
+from src.model.models.model import Model
+from src.model.models.roberta_model import RobertaModel
+from src.utils.metadata import Metadata
+from src.utils.data_model import ServicenowData, DatabaseData
+from src.model.preprocess.roberta_dataloader import RobertaTrainSentimentData
+from src.model.preprocess.roberta_sentiment_converter import RobertaSentimentConverter
 
 class ModelProcess:
     def __init__(self):
@@ -16,7 +16,7 @@ class ModelProcess:
             stable_metadata_filepath: Metadata file for stable model(inferencing model)
         """
         self.model_creator: RobertaModel = None
-        self.model_checkpoint_path = "./checkpoint/your_model.pth"
+        self.model_checkpoint_path = "./src/checkpoint/your_model.pth"
         self.max_finetuned_count = 5
 
     def train(self):

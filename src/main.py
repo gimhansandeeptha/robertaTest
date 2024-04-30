@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-from model.main import ModelProcess
+from src.model.main import ModelProcess
 
 appapi = FastAPI()
 
@@ -26,6 +25,3 @@ async def send_message(message_id: str, request: Request):
 
     sentiment = model_process.inference(new_message)
     return {"status": "Message sent successfully", "prediction": [sentiment]}
-
-if __name__ == "__main__":
-    uvicorn.run(appapi, host="127.0.0.1", port=8000)
